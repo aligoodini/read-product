@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>محصولات افشار</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+
+    <script
+      type="text/javascript"
+      src="https://unpkg.com/xlsx@0.15.1/dist/xlsx.full.min.js"
+    ></script>
+  </head>
+  <body>
+    <div class="container">
+      <h2 class="text-center mt-4 mb-4">محصولات افشار</h2>
+      <div class="card">
+        <div class="card-header"><b>فایل اکسل را آپلود کنید</b></div>
+        <div class="card-body">
+          <input
+            type="file"
+            id="excel_file"
+            value="C:\fakepath\products.xlsx"
+          />
+        </div>
+      </div>
+      <div
+        class="input-container"
+        style="display: flex; justify-content: space-between"
+      >
+        <input
+          type="text"
+          class="search-name"
+          placeholder="بر اساس نام محصول جستجو کنید"
+          style="width: 300px; margin-top: 10px"
+        />
+        <input
+          type="text"
+          class="search-barcode"
+          placeholder="بر اساس بارکد جستجو کنید "
+          style="width: 300px; margin-top: 10px"
+        />
+      </div>
+      <div id="qr-reader" style="width: 600px"></div>
+      <div id="reader" style="width: 500px"></div>
+      <div id="result" style="text-align: center; font-size: 1.5rem"></div>
+
+      <div id="excel_data" class="mt-5">
+        <table class="table table-striped table-bordered">
+          <tr>
+            <th>شماره</th>
+            <th>بارکد</th>
+            <th>نام محصول</th>
+            <th>قیمت تک</th>
+            <th>قیمت عمده</th>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/html5-qrcode@2.0.9/dist/html5-qrcode.min.js"></script>
+    <script src="./app.js"></script>
+    <script>
+      // function onScanSuccess(decodedText, decodedResult) {
+      //   console.log(`Code scanned = ${decodedText}`, decodedResult);
+      // }
+      // var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
+      //   fps: 500,
+      //   qrbox: 250,
+      // });
+      // html5QrcodeScanner.render(onScanSuccess);
+      // const scanner = new Html5QrcodeScanner("reader", {
+      //   // Scanner will be initialized in DOM inside element with id of 'reader'
+      //   qrbox: 250, // Sets dimensions of scanning box (set relative to reader element width)
+      //   fps: 500, // Frames per second to attempt a scan
+      // });
+
+
+      // scanner.render(success, error);
+      // // Starts scanner
+
+      // function success(result) {
+      //   document.getElementById("result").innerHTML = `
+      //   <h2>Success!</h2>
+      //   <p><a href="${result}">${result}</a></p>
+      //   `;
+      //   // Prints result as a link inside result element
+
+      //   scanner.clear();
+      //   // Clears scanning instance
+
+      //   document.getElementById("reader").remove();
+      //   // Removes reader element from DOM since no longer needed
+      // }
+
+      // function error(err) {
+      //   // console.error(err);
+      //   // Prints any errors to the console
+      // }
+    </script>
+  </body>
+</html>
