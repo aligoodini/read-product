@@ -3,6 +3,7 @@ const searchName = document.querySelector(".search-name");
 const searchBarcode = document.querySelector(".search-barcode");
 const table = document.querySelector(".table");
 let filteredNames = [];
+let myItems = [];
 let searchedBarcode = "";
 
 excel_file.addEventListener("change", (event) => {
@@ -33,11 +34,18 @@ excel_file.addEventListener("change", (event) => {
     // });
     // const resPostData = await postData.json();
 
+    table.innerHTML = `
+              <tr>
+            <th>شماره</th>
+            <th>بارکد</th>
+            <th>نام محصول</th>
+            <th>قیمت تک</th>
+            <th>قیمت عمده</th>
+          </tr>
+    `;
     localStorage.setItem("afsharData", JSON.stringify(sheet_data));
 
     getData();
-
-    excel_file.value = "";
   };
 });
 
@@ -50,7 +58,7 @@ window.addEventListener("load", () => {
 function getData() {
   const LocalData = JSON.parse(localStorage.getItem("afsharData"));
   filteredNames = [...LocalData];
-  console.log(filteredNames);
+  // console.log(filteredNames);
   makeTable(filteredNames);
 
   // fetch(`http://localhost:3000/products`, {
@@ -72,33 +80,68 @@ function getData() {
   //   });
 }
 
+// ----------------------------------------------------------- QRcode and CamScaner
+
 function onScanSuccess(decodedText, decodedResult) {
   // console.log(`Code scanned = ${decodedText}`, decodedResult);
   console.log(decodedText);
   filterBarcode(decodedText);
-  
 }
 var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
   fps: 500,
-  qrbox: 250,
+  qrbox: {
+    width: 270,
+    height: 200,
+  },
 });
 html5QrcodeScanner.render(onScanSuccess);
 
 // ------------------------------------------------------------- filter by name
 searchName.addEventListener("keyup", (e) => {
   searchBarcode.value = "";
-  table.innerHTML = "";
+  table.innerHTML = `
+  <tr>
+<th>شماره</th>
+<th>بارکد</th>
+<th>نام محصول</th>
+<th>قیمت تک</th>
+<th>قیمت عمده</th>
+</tr>
+`;
+
+  let finalArray = [];
 
   let searchedName = e.target.value;
-  let myItems = filteredNames.filter((item) => {
-    if (item[1]) {
-      return item[1].toLowerCase().includes(searchedName.toLowerCase());
+
+  // ------------------------------------------------------------------- advanced search
+  let splitedArray = searchedName.split(" ");
+
+  splitedArray.map((elem, index) => {
+    if (index == 0) {
+      myItems = filteredNames.filter((item) => {
+        if (item[1]) {
+          return item[1].toLowerCase().includes(elem.toLowerCase());
+        }
+      });
+    } else {
+      myItems = myItems.filter((item) => {
+        if (item[1]) {
+          return item[1].toLowerCase().includes(elem.toLowerCase());
+        }
+      });
     }
+
+    finalArray = [...myItems];
   });
 
-  console.log(myItems);
+  // -------------------------------------------------------------------- normal search
+  // let myItems = filteredNames.filter((item) => {
+  //   if (item[1]) {
+  //     return item[1].toLowerCase().includes(searchedName.toLowerCase());
+  //   }
+  // });
 
-  makeTable(myItems);
+  makeTable(finalArray);
 });
 
 // ------------------------------------------------------------- filter by barcode
@@ -110,7 +153,15 @@ searchBarcode.addEventListener("keyup", (e) => {
 });
 
 function filterBarcode(searchedBarcode) {
-  table.innerHTML = "";
+  table.innerHTML = `
+  <tr>
+<th>شماره</th>
+<th>بارکد</th>
+<th>نام محصول</th>
+<th>قیمت تک</th>
+<th>قیمت عمده</th>
+</tr>
+`;
   let myItems = filteredNames.filter((item) => {
     if (item[0]) {
       let changeItem = item[0].toString();
@@ -134,8 +185,12 @@ function makeTable(arraItem) {
     td0.innerHTML = `${index + 1}`;
     td1.innerHTML = `${item[0]}`;
     td2.innerHTML = `${item[1]}`;
-    td3.innerHTML = `${item[2]}`;
-    td4.innerHTML = `${item[3]}`;
+    if (item[2]) {
+      td3.innerHTML = `${item[2].toLocaleString()}`;
+    }
+    if (item[3]) {
+      td4.innerHTML = `${item[3].toLocaleString()}`;
+    }
 
     tr.appendChild(td0);
     tr.appendChild(td1);
