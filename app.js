@@ -2,9 +2,19 @@ const excel_file = document.getElementById("excel_file");
 const searchName = document.querySelector(".search-name");
 const searchBarcode = document.querySelector(".search-barcode");
 const table = document.querySelector(".table");
+const btn = document.querySelector(".btn");
 let filteredNames = [];
 let myItems = [];
 let searchedBarcode = "";
+let sheet_data2 = [];
+// --------------------------------- indexDB
+let dbOpen = null;
+let db = null;
+let obStore = null;
+let version = 1;
+// let tx = null;
+let dataGetFromDB = null;
+let nececeryDataRemove = null;
 
 excel_file.addEventListener("change", (event) => {
   // ------------------------------------------------------------ convert to array
@@ -34,6 +44,20 @@ excel_file.addEventListener("change", (event) => {
     // });
     // const resPostData = await postData.json();
 
+    sheet_data2 = [...sheet_data];
+
+    const ddd = {
+      id: JSON.stringify(sheet_data2),
+    };
+
+    let tx = db.transaction("afsharTable", "readwrite");
+    let store = tx.objectStore("afsharTable");
+    let request = store.add(ddd);
+
+    console.log(request);
+
+    console.log(tx);
+
     table.innerHTML = `
               <tr>
             <th>شماره</th>
@@ -43,24 +67,83 @@ excel_file.addEventListener("change", (event) => {
             <th>قیمت عمده</th>
           </tr>
     `;
-    localStorage.setItem("afsharData", JSON.stringify(sheet_data));
+
+    // localStorage.setItem("afsharData", JSON.stringify(sheet_data));
 
     getData();
   };
 });
 
+// ------------------------------------------------------ remove indexDB
+
+btn.addEventListener("click", () => {
+  removeDB();
+});
+
+function removeDB() {
+  let tx = db.transaction("afsharTable", "readwrite");
+  let store = tx.objectStore("afsharTable");
+  // console.log(store)
+  let request = store.delete(nececeryDataRemove);
+  // let request = store.delete("id")
+  request.addEventListener("success", (event) => {
+    console.log("Delete Request Success", event);
+  });
+}
+
 // --------------------------------------------------- get data from json server
 
 window.addEventListener("load", () => {
-  getData();
+  // -------------------------------------------------------- create indexDB
+  dbOpen = indexedDB.open("afsharData", version);
+
+  dbOpen.addEventListener("success", (event) => {
+    db = event.target.result;
+    getData();
+  });
+
+  dbOpen.addEventListener("upgradeneeded", (e) => {
+    console.log("upgradeneeded");
+    db = e.target.result;
+
+    if (!db.objectStoreNames.contains("afsharTable")) {
+      obStore = db.createObjectStore("afsharTable", {
+        keyPath: "id",
+      });
+    } else {
+      db.deleteObjectStore("afsharTable");
+      obStore = db.createObjectStore("afsharTable", {
+        keyPath: "id",
+      });
+    }
+  });
 });
 
+// -------------------------------------------------------- geting data from database
 function getData() {
-  const LocalData = JSON.parse(localStorage.getItem("afsharData"));
-  filteredNames = [...LocalData];
-  // console.log(filteredNames);
-  makeTable(filteredNames);
+  let tx = db.transaction("afsharTable", "readonly");
 
+  let store = tx.objectStore("afsharTable");
+  let request = store.getAll();
+
+  request.addEventListener("success", (event) => {
+    dataGetFromDB = event.target.result;
+
+    if (dataGetFromDB[0]) {
+      nececeryDataRemove = dataGetFromDB[0].id;
+
+      let finallGet = [...JSON.parse(dataGetFromDB[0].id)];
+
+      filteredNames = [...finallGet];
+      makeTable(finallGet);
+    }
+  });
+
+  // ---------------------------------------------------------------------- local storage
+  // const LocalData = JSON.parse(localStorage.getItem("afsharData"));
+  // filteredNames = [...LocalData];
+
+  // -------------------------------------------------------------- json server
   // fetch(`http://localhost:3000/products`, {
   //   method: "GET",
   //   headers: {
